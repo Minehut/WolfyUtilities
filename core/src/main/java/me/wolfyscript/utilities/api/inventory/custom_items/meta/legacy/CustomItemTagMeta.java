@@ -1,7 +1,8 @@
-package me.wolfyscript.utilities.api.inventory.custom_items.meta;
+package me.wolfyscript.utilities.api.inventory.custom_items.meta.legacy;
 
 
 import me.wolfyscript.utilities.api.WolfyUtilities;
+import me.wolfyscript.utilities.api.inventory.custom_items.meta.LegacyMetaSettings;
 import me.wolfyscript.utilities.util.inventory.item_builder.ItemBuilder;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -10,15 +11,15 @@ import org.bukkit.persistence.PersistentDataType;
 public class CustomItemTagMeta extends Meta {
 
     public CustomItemTagMeta() {
-        setOption(MetaSettings.Option.IGNORE);
-        setAvailableOptions(MetaSettings.Option.IGNORE, MetaSettings.Option.EXACT);
+        setOption(LegacyMetaSettings.Option.IGNORE);
+        setAvailableOptions(LegacyMetaSettings.Option.IGNORE, LegacyMetaSettings.Option.EXACT);
     }
 
     @Override
     public boolean check(ItemBuilder itemOther, ItemBuilder item) {
         ItemMeta meta1 = itemOther.getItemMeta();
         ItemMeta meta2 = item.getItemMeta();
-        if (option.equals(MetaSettings.Option.IGNORE)) {
+        if (option.equals(LegacyMetaSettings.Option.IGNORE)) {
             NamespacedKey namespacedKey = new NamespacedKey(WolfyUtilities.getWUPlugin(), "custom_item");
             if (meta1.getPersistentDataContainer().has(namespacedKey, PersistentDataType.STRING)) {
                 meta1.getPersistentDataContainer().remove(namespacedKey);

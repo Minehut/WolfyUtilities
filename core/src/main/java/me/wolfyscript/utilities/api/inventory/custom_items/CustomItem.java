@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import me.wolfyscript.utilities.api.WolfyUtilities;
-import me.wolfyscript.utilities.api.inventory.custom_items.meta.MetaSettings;
+import me.wolfyscript.utilities.api.inventory.custom_items.meta.LegacyMetaSettings;
 import me.wolfyscript.utilities.api.inventory.custom_items.references.APIReference;
 import me.wolfyscript.utilities.api.inventory.custom_items.references.VanillaRef;
 import me.wolfyscript.utilities.api.inventory.custom_items.references.WolfyUtilitiesRef;
@@ -103,7 +103,7 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
      */
     private final APIReference apiReference;
     private ParticleContent particleContent;
-    private MetaSettings metaSettings;
+    private LegacyMetaSettings legacyMetaSettings;
 
 
     public CustomItem(APIReference apiReference) {
@@ -113,7 +113,7 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
         this.namespacedKey = null;
         this.burnTime = 0;
         this.allowedBlocks = new ArrayList<>();
-        this.metaSettings = new MetaSettings();
+        this.legacyMetaSettings = new LegacyMetaSettings();
         this.permission = "";
         this.rarityPercentage = 1.0d;
         for (CustomData.Provider<?> customData : Registry.CUSTOM_ITEM_DATA.values()) {
@@ -282,12 +282,12 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
         this.consumed = consumed;
     }
 
-    public MetaSettings getMetaSettings() {
-        return metaSettings;
+    public LegacyMetaSettings getMetaSettings() {
+        return legacyMetaSettings;
     }
 
-    public void setMetaSettings(MetaSettings metaSettings) {
-        this.metaSettings = metaSettings;
+    public void setMetaSettings(LegacyMetaSettings legacyMetaSettings) {
+        this.legacyMetaSettings = legacyMetaSettings;
     }
 
     public int getBurnTime() {
@@ -447,7 +447,7 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
                 Objects.equals(equipmentSlots, that.equipmentSlots) &&
                 Objects.equals(apiReference, that.apiReference) &&
                 Objects.equals(particleContent, that.particleContent) &&
-                Objects.equals(metaSettings, that.metaSettings);
+                Objects.equals(legacyMetaSettings, that.legacyMetaSettings);
     }
 
     @Override
@@ -656,6 +656,7 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
 
     private Material getCraftRemain() {
         ItemStack item = getItemStack();
+        if (item == null) return null;
         if (ServerVersion.isAfter(MinecraftVersions.v1_14)) {
             if (item.getType().isItem()) {
                 Material replaceType = item.getType().getCraftingRemainingItem();
@@ -801,7 +802,7 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
                 ", advanced=" + advanced +
                 ", apiReference=" + apiReference +
                 ", particleContent=" + particleContent +
-                ", metaSettings=" + metaSettings +
+                ", metaSettings=" + legacyMetaSettings +
                 "} " + super.toString();
     }
 
@@ -883,7 +884,18 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
                 customItem.setBlockVanillaRecipes(node.path("blockVanillaRecipes").asBoolean());
                 customItem.setRarityPercentage(node.path("rarity_percentage").asDouble(1.0));
                 customItem.setPermission(node.path("permission").asText());
-                customItem.setMetaSettings(mapper.convertValue(node.path("meta"), MetaSettings.class));
+
+                if (node.has("meta")) {
+                    //Old version conversion
+                    LegacyMetaSettings.convert(customItem, node.path("meta"));
+                    //customItem.setMetaSettings(mapper.convertValue(node.path("meta"), LegacyMetaSettings.class));
+                } else {
+                    //Get new values.
+
+
+                }
+
+
                 JsonNode fuelNode = node.path("fuel");
                 {
                     customItem.setBurnTime(fuelNode.path("burntime").asInt());

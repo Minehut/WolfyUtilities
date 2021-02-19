@@ -1,7 +1,8 @@
-package me.wolfyscript.utilities.api.inventory.custom_items.meta;
+package me.wolfyscript.utilities.api.inventory.custom_items.meta.legacy;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
+import me.wolfyscript.utilities.api.inventory.custom_items.meta.LegacyMetaSettings;
 import me.wolfyscript.utilities.util.Keyed;
 import me.wolfyscript.utilities.util.NamespacedKey;
 import me.wolfyscript.utilities.util.inventory.item_builder.ItemBuilder;
@@ -15,31 +16,31 @@ import java.util.Objects;
 
 public abstract class Meta implements Keyed {
 
-    protected MetaSettings.Option option;
+    protected LegacyMetaSettings.Option option;
 
     @JsonIgnore
     private NamespacedKey namespacedKey;
     @JsonIgnore
-    private List<MetaSettings.Option> availableOptions;
+    private List<LegacyMetaSettings.Option> availableOptions;
 
-    public MetaSettings.Option getOption() {
+    public LegacyMetaSettings.Option getOption() {
         return option;
     }
 
-    public void setOption(MetaSettings.Option option) {
+    public void setOption(LegacyMetaSettings.Option option) {
         this.option = option;
     }
 
     @JsonIgnore
     public boolean isExact() {
-        return option.equals(MetaSettings.Option.EXACT);
+        return option.equals(LegacyMetaSettings.Option.EXACT);
     }
 
-    public List<MetaSettings.Option> getAvailableOptions() {
+    public List<LegacyMetaSettings.Option> getAvailableOptions() {
         return availableOptions;
     }
 
-    protected void setAvailableOptions(MetaSettings.Option... options) {
+    protected void setAvailableOptions(LegacyMetaSettings.Option... options) {
         if (options != null) {
             availableOptions = Arrays.asList(options);
         }

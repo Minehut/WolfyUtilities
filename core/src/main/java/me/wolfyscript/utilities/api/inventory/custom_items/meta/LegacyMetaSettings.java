@@ -1,9 +1,12 @@
 package me.wolfyscript.utilities.api.inventory.custom_items.meta;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import me.wolfyscript.utilities.api.inventory.custom_items.CustomItem;
+import me.wolfyscript.utilities.api.inventory.custom_items.meta.legacy.Meta;
 import me.wolfyscript.utilities.util.NamespacedKey;
 import me.wolfyscript.utilities.util.Registry;
 import me.wolfyscript.utilities.util.inventory.item_builder.ItemBuilder;
@@ -13,14 +16,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
 
-@JsonDeserialize(using = MetaSettings.Deserializer.class)
-public class MetaSettings extends HashMap<NamespacedKey, Meta> {
+@Deprecated
+@JsonDeserialize(using = LegacyMetaSettings.Deserializer.class)
+public class LegacyMetaSettings extends HashMap<NamespacedKey, Meta> {
 
-    public MetaSettings() {
+    public LegacyMetaSettings() {
         Registry.META_PROVIDER.entrySet().forEach(entry -> put(entry.getKey(), entry.getValue().provide()));
     }
 
-    public MetaSettings(JsonNode node) {
+    public LegacyMetaSettings(JsonNode node) {
         this();
         if (node != null) {
             node.fields().forEachRemaining(entry -> {
@@ -31,7 +35,7 @@ public class MetaSettings extends HashMap<NamespacedKey, Meta> {
                     Meta meta;
                     if (entry.getValue().isTextual()) {
                         meta = provider.provide();
-                        meta.setOption(JacksonUtil.getObjectMapper().convertValue(entry.getValue(), MetaSettings.Option.class));
+                        meta.setOption(JacksonUtil.getObjectMapper().convertValue(entry.getValue(), LegacyMetaSettings.Option.class));
                     } else {
                         meta = provider.parse(entry.getValue());
                     }
@@ -39,6 +43,16 @@ public class MetaSettings extends HashMap<NamespacedKey, Meta> {
                 }
             });
         }
+    }
+
+    public static SettingsMetaItem convert(CustomItem item, JsonNode node) throws JsonProcessingException {
+        if (node.isTextual()) {
+            //Old String style meta
+            node = JacksonUtil.getObjectMapper().readTree(node.asText());
+        }
+        //New Json style meta
+        LegacyMetaSettings legacyMetaSettings = new LegacyMetaSettings(node);
+        return null;
     }
 
     public boolean check(ItemBuilder itemOther, ItemBuilder item) {
@@ -49,25 +63,25 @@ public class MetaSettings extends HashMap<NamespacedKey, Meta> {
         EXACT, IGNORE, HIGHER, HIGHER_EXACT, LOWER, LOWER_EXACT, HIGHER_LOWER
     }
 
-    public static class Deserializer extends StdDeserializer<MetaSettings> {
+    public static class Deserializer extends StdDeserializer<LegacyMetaSettings> {
 
         public Deserializer() {
-            super(MetaSettings.class);
+            super(LegacyMetaSettings.class);
+        }
+
+        protected Deserializer(Class<LegacyMetaSettings> t) {
+            super(t);
         }
 
         @Override
-        public MetaSettings deserialize(com.fasterxml.jackson.core.JsonParser p, DeserializationContext ctxt) throws IOException {
+        public LegacyMetaSettings deserialize(com.fasterxml.jackson.core.JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonNode node = p.readValueAsTree();
             if (node.isTextual()) {
                 //Old String style meta
                 node = JacksonUtil.getObjectMapper().readTree(node.asText());
             }
             //New Json style meta
-            return new MetaSettings(node);
-        }
-
-        protected Deserializer(Class<MetaSettings> t) {
-            super(t);
+            return new LegacyMetaSettings(node);
         }
     }
 }

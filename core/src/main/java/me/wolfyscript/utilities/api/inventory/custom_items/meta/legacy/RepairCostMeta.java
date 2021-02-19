@@ -1,6 +1,7 @@
-package me.wolfyscript.utilities.api.inventory.custom_items.meta;
+package me.wolfyscript.utilities.api.inventory.custom_items.meta.legacy;
 
 
+import me.wolfyscript.utilities.api.inventory.custom_items.meta.LegacyMetaSettings;
 import me.wolfyscript.utilities.util.inventory.item_builder.ItemBuilder;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
@@ -8,8 +9,8 @@ import org.bukkit.inventory.meta.Repairable;
 public class RepairCostMeta extends Meta {
 
     public RepairCostMeta() {
-        setOption(MetaSettings.Option.EXACT);
-        setAvailableOptions(MetaSettings.Option.EXACT, MetaSettings.Option.IGNORE, MetaSettings.Option.HIGHER, MetaSettings.Option.LOWER);
+        setOption(LegacyMetaSettings.Option.EXACT);
+        setAvailableOptions(LegacyMetaSettings.Option.EXACT, LegacyMetaSettings.Option.IGNORE, LegacyMetaSettings.Option.HIGHER, LegacyMetaSettings.Option.LOWER);
     }
 
     @Override

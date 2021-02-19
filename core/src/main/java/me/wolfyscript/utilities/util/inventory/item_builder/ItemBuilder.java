@@ -18,7 +18,7 @@ public class ItemBuilder extends AbstractItemBuilder<ItemBuilder> {
     }
 
     @Override
-    protected ItemStack getItemStack() {
+    public ItemStack getItemStack() {
         return itemStack;
     }
 

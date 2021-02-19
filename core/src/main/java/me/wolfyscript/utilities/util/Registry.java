@@ -3,7 +3,7 @@ package me.wolfyscript.utilities.util;
 import com.google.common.base.Preconditions;
 import me.wolfyscript.utilities.api.inventory.custom_items.CustomData;
 import me.wolfyscript.utilities.api.inventory.custom_items.CustomItem;
-import me.wolfyscript.utilities.api.inventory.custom_items.meta.Meta;
+import me.wolfyscript.utilities.api.inventory.custom_items.meta.legacy.Meta;
 import me.wolfyscript.utilities.api.inventory.custom_items.references.WolfyUtilitiesRef;
 import me.wolfyscript.utilities.util.particles.ParticleAnimation;
 import me.wolfyscript.utilities.util.particles.ParticleEffect;
@@ -32,9 +32,11 @@ public interface Registry<V extends Keyed> extends Iterable<V> {
      * And also the Recipe Book uses a CustomData object to store some data.
      */
     Registry<CustomData.Provider<?>> CUSTOM_ITEM_DATA = new SimpleRegistry<>();
-    MetaRegistry META_PROVIDER = new MetaRegistry();
     ParticleRegistry PARTICLE_EFFECTS = new ParticleRegistry();
     ParticleAnimationRegistry PARTICLE_ANIMATIONS = new ParticleAnimationRegistry();
+
+    @Deprecated
+    MetaRegistry META_PROVIDER = new MetaRegistry();
 
     /**
      * Get the value of the registry by it's {@link NamespacedKey}

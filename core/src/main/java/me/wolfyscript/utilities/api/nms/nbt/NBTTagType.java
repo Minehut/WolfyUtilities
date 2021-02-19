@@ -18,11 +18,20 @@ public interface NBTTagType<T extends NBTBase> {
         };
     }
 
+    /**
+     * Used internally to get the API instance of a NMS NBTBase.
+     *
+     * @param nbtBase The NMS NBTBase object
+     * @return The according API NBTBase for that object.
+     */
     T get(@Nullable Object nbtBase);
 
+    /**
+     * @return The type of NBT Tag as a enum
+     */
     Type getType();
 
-    enum Type{
+    enum Type {
 
         TAG_END,
         BYTE,

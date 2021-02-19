@@ -1,14 +1,15 @@
-package me.wolfyscript.utilities.api.inventory.custom_items.meta;
+package me.wolfyscript.utilities.api.inventory.custom_items.meta.legacy;
 
+import me.wolfyscript.utilities.api.inventory.custom_items.meta.LegacyMetaSettings;
 import me.wolfyscript.utilities.util.inventory.item_builder.ItemBuilder;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class CustomDurabilityMeta extends Meta {
+public class CustomDamageMeta extends Meta {
 
-    public CustomDurabilityMeta() {
-        setOption(MetaSettings.Option.EXACT);
-        setAvailableOptions(MetaSettings.Option.EXACT, MetaSettings.Option.IGNORE, MetaSettings.Option.HIGHER, MetaSettings.Option.LOWER);
+    public CustomDamageMeta() {
+        setOption(LegacyMetaSettings.Option.EXACT);
+        setAvailableOptions(LegacyMetaSettings.Option.EXACT, LegacyMetaSettings.Option.IGNORE, LegacyMetaSettings.Option.HIGHER, LegacyMetaSettings.Option.LOWER);
     }
 
     @Override
@@ -20,23 +21,21 @@ public class CustomDurabilityMeta extends Meta {
         if (meta0 && meta1) {
             switch (option) {
                 case EXACT:
-                    return itemOther.getCustomDurability() == item.getCustomDurability();
+                    return itemOther.getCustomDamage() == item.getCustomDamage();
                 case IGNORE:
-                    itemOther.setCustomDurability(0);
-                    item.setCustomDurability(0);
+                    itemOther.setCustomDamage(0);
+                    item.setCustomDamage(0);
                     ((Damageable)metaOther).setDamage(0);
                     ((Damageable)meta).setDamage(0);
                     itemOther.setItemMeta(metaOther);
                     item.setItemMeta(meta);
                     return true;
                 case LOWER:
-                    return itemOther.getCustomDurability() < item.getCustomDurability();
+                    return itemOther.getCustomDamage() < item.getCustomDamage();
                 case HIGHER:
-                    return itemOther.getCustomDurability() > item.getCustomDurability();
+                    return itemOther.getCustomDamage() > item.getCustomDamage();
             }
             return true;
-        } else {
-            return !meta0 && !meta1;
-        }
+        } else return !meta0 && !meta1;
     }
 }
