@@ -144,6 +144,15 @@ public abstract class AbstractItemBuilder<T extends AbstractItemBuilder<?>> {
         return getCustomDamage(getItemMeta());
     }
 
+    public boolean hasCustomDamage() {
+        ItemMeta itemMeta = getItemMeta();
+        if (itemMeta != null) {
+            PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
+            return dataContainer.has(CUSTOM_DURABILITY_DAMAGE, PersistentDataType.INTEGER) && dataContainer.get(CUSTOM_DURABILITY_DAMAGE, PersistentDataType.INTEGER) > 0;
+        }
+        return false;
+    }
+
     public T setCustomDamage(int damage) {
         ItemMeta itemMeta = getItemMeta();
         if (itemMeta != null) {
