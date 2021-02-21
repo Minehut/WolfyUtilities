@@ -3,14 +3,15 @@ package me.wolfyscript.utilities.api.inventory.custom_items.meta.options;
 import me.wolfyscript.utilities.api.inventory.custom_items.CustomItem;
 import me.wolfyscript.utilities.api.inventory.custom_items.meta.SimpleMetaOption;
 import me.wolfyscript.utilities.util.NamespacedKey;
-import me.wolfyscript.utilities.util.inventory.item_builder.ItemBuilder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class OptionMetaLocalizedName extends SimpleMetaOption {
 
     public static final Creator<OptionMetaLocalizedName> CREATOR = new Creator<OptionMetaLocalizedName>() {
         @Override
         public OptionMetaLocalizedName create(CustomItem customItem) {
-            return null;
+            return new OptionMetaLocalizedName();
         }
 
         @Override
@@ -19,23 +20,16 @@ public class OptionMetaLocalizedName extends SimpleMetaOption {
         }
     };
 
-    private SimpleSetting option;
 
-    public OptionMetaLocalizedName(CustomItem customItem) {
-        super(customItem);
+    public OptionMetaLocalizedName() {
+        super();
     }
 
     @Override
-    public boolean check(CustomItem itemThis, ItemBuilder itemThat) {
-        if (!option.equals(SimpleSetting.IGNORE)) {
-            if (itemThis.getItemMeta().hasLocalizedName()) {
-                if (!itemThat.getItemMeta().hasLocalizedName() || !itemThis.getItemMeta().getLocalizedName().equals(itemThat.getItemMeta().getLocalizedName())) {
-                    return false;
-                }
-            } else if (itemThat.getItemMeta().hasLocalizedName()) {
-                return false;
-            }
-        }
-        return false;
+    public boolean check(CustomItem customItem, ItemMeta thatMeta, ItemStack thatItem) {
+        if (super.check(customItem, thatMeta, thatItem)) return true;
+        if (customItem.getItemMeta().hasLocalizedName()) {
+            return thatMeta.hasLocalizedName() && customItem.getItemMeta().getLocalizedName().equals(thatMeta.getLocalizedName());
+        } else return !thatMeta.hasLocalizedName();
     }
 }

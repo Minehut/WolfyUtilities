@@ -1,21 +1,43 @@
 package me.wolfyscript.utilities.api.inventory.custom_items.meta;
 
 import me.wolfyscript.utilities.api.inventory.custom_items.CustomItem;
+import me.wolfyscript.utilities.api.inventory.custom_items.meta.options.OptionMetaSkullOwner;
+import me.wolfyscript.utilities.api.inventory.custom_items.meta.options.OptionMetaSkullProfile;
 import me.wolfyscript.utilities.util.NamespacedKey;
-import me.wolfyscript.utilities.util.inventory.item_builder.ItemBuilder;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.Map;
 
-public class SettingsMetaSkull {
+public class SettingsMetaSkull extends SettingsMetaItem {
 
-    private MetaOption skullProfile;
-    private MetaOption skullOwner;
+    private final OptionMetaSkullProfile skullProfile;
+    private final OptionMetaSkullOwner skullOwner;
 
-    private Map<NamespacedKey, MetaOption> customOptions;
+    private final Map<NamespacedKey, MetaOption> customSkullOptions;
 
+    public SettingsMetaSkull(CustomItem customItem) {
+        super(customItem);
+        this.skullOwner = new OptionMetaSkullOwner(customItem);
+        this.skullProfile = new OptionMetaSkullProfile(customItem);
+        this.customSkullOptions = new HashMap<>();
+    }
 
-    public boolean check(CustomItem thisItem, ItemBuilder thatItem) {
-        //TODO: WIP new Metadata check system.
+    @Override
+    public boolean check(ItemStack that) {
+        if (super.check(that)) {
+            if (skullOwner.check(, that.getItemMeta(), that) && skullProfile.check(, that.getItemMeta(), that)) {
+                return customSkullOptions.values().stream().allMatch(metaOption -> metaOption.check(, that.getItemMeta(), that));
+            }
+        }
         return false;
+    }
+
+    public OptionMetaSkullProfile getSkullProfile() {
+        return skullProfile;
+    }
+
+    public OptionMetaSkullOwner getSkullOwner() {
+        return skullOwner;
     }
 }

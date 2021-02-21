@@ -52,6 +52,7 @@ public class LegacyMetaSettings extends HashMap<NamespacedKey, Meta> {
         }
         //New Json style meta
         LegacyMetaSettings legacyMetaSettings = new LegacyMetaSettings(node);
+
         return null;
     }
 

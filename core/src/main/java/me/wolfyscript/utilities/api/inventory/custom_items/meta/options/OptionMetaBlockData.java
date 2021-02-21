@@ -6,7 +6,8 @@ import me.wolfyscript.utilities.api.inventory.custom_items.meta.SimpleMetaOption
 import me.wolfyscript.utilities.api.nms.NBTUtil;
 import me.wolfyscript.utilities.api.nms.nbt.NBTItem;
 import me.wolfyscript.utilities.util.NamespacedKey;
-import me.wolfyscript.utilities.util.inventory.item_builder.ItemBuilder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class OptionMetaBlockData extends SimpleMetaOption {
 
@@ -14,7 +15,7 @@ public class OptionMetaBlockData extends SimpleMetaOption {
     public static Creator<OptionMetaBlockData> CREATOR = new Creator<OptionMetaBlockData>() {
         @Override
         public OptionMetaBlockData create(CustomItem customItem) {
-            return new OptionMetaBlockData(customItem);
+            return new OptionMetaBlockData();
         }
 
         @Override
@@ -23,25 +24,18 @@ public class OptionMetaBlockData extends SimpleMetaOption {
         }
     };
 
-
-    public OptionMetaBlockData(CustomItem customItem) {
-        super(customItem);
+    public OptionMetaBlockData() {
+        super();
     }
 
     @Override
-    public boolean check(CustomItem itemThis, ItemBuilder itemThat) {
-        if (!option.equals(SimpleSetting.IGNORE)) {
-            NBTUtil nbtUtil = WolfyUtilities.getWUCore().getNmsUtil().getNBTUtil();
-            NBTItem thisNBTItem = nbtUtil.getItem(itemThis.getItemStack());
-            NBTItem thatNBTItem = nbtUtil.getItem(itemThat.getItemStack());
-            if (thisNBTItem.hasKeyOfType(BLOCK_DATA, 10)) {
-                if (!thatNBTItem.hasKeyOfType(BLOCK_DATA, 10) || !thisNBTItem.getCompound(BLOCK_DATA).equals(thatNBTItem.getCompound(BLOCK_DATA))) {
-                    return false;
-                }
-            } else if (thatNBTItem.hasKeyOfType(BLOCK_DATA, 10)) {
-                return false;
-            }
-        }
-        return false;
+    public boolean check(CustomItem customItem, ItemMeta thatMeta, ItemStack thatItem) {
+        if (super.check(customItem, thatMeta, thatItem)) return true;
+        NBTUtil nbtUtil = WolfyUtilities.getWUCore().getNmsUtil().getNBTUtil();
+        NBTItem thisNBTItem = nbtUtil.getItem(customItem.getItemStack());
+        NBTItem thatNBTItem = nbtUtil.getItem(thatItem);
+        if (thisNBTItem.hasKeyOfType(BLOCK_DATA, 10)) {
+            return thatNBTItem.hasKeyOfType(BLOCK_DATA, 10) && thisNBTItem.getCompound(BLOCK_DATA).equals(thatNBTItem.getCompound(BLOCK_DATA));
+        } else return !thatNBTItem.hasKeyOfType(BLOCK_DATA, 10);
     }
 }

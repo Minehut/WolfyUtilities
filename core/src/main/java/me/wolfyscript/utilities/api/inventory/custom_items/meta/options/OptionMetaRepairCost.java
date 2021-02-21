@@ -3,7 +3,8 @@ package me.wolfyscript.utilities.api.inventory.custom_items.meta.options;
 import me.wolfyscript.utilities.api.inventory.custom_items.CustomItem;
 import me.wolfyscript.utilities.api.inventory.custom_items.meta.SimpleMetaOption;
 import me.wolfyscript.utilities.util.NamespacedKey;
-import me.wolfyscript.utilities.util.inventory.item_builder.ItemBuilder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
 
 public class OptionMetaRepairCost extends SimpleMetaOption {
@@ -11,7 +12,7 @@ public class OptionMetaRepairCost extends SimpleMetaOption {
     public static final Creator<OptionMetaRepairCost> CREATOR = new Creator<OptionMetaRepairCost>() {
         @Override
         public OptionMetaRepairCost create(CustomItem customItem) {
-            return new OptionMetaRepairCost(customItem);
+            return new OptionMetaRepairCost();
         }
 
         @Override
@@ -20,25 +21,17 @@ public class OptionMetaRepairCost extends SimpleMetaOption {
         }
     };
 
-    public OptionMetaRepairCost(CustomItem customItem) {
-        super(customItem);
+    public OptionMetaRepairCost() {
+        super();
     }
 
     @Override
-    public boolean check(CustomItem itemThis, ItemBuilder itemThat) {
-        if (!option.equals(SimpleSetting.IGNORE)) {
-            if (itemThis.getItemMeta() instanceof Repairable && itemThat.getItemMeta() instanceof Repairable) {
-                Repairable metaThis = (Repairable) itemThis.getItemMeta();
-                Repairable metaThat = (Repairable) itemThat.getItemMeta();
-                if (metaThis.hasRepairCost()) {
-                    if (!metaThat.hasRepairCost() || metaThis.getRepairCost() != metaThat.getRepairCost()) {
-                        return false;
-                    }
-                } else if (metaThat.hasRepairCost()) {
-                    return false;
-                }
-            }
-        }
-        return false;
+    public boolean check(CustomItem customItem, ItemMeta thatMeta, ItemStack thatItem) {
+        if (super.check(customItem, thatMeta, thatItem)) return true;
+        Repairable metaThis = (Repairable) customItem.getItemMeta();
+        Repairable metaThat = (Repairable) thatMeta;
+        if (metaThis.hasRepairCost()) {
+            return metaThat.hasRepairCost() && metaThis.getRepairCost() == metaThat.getRepairCost();
+        } else return !metaThat.hasRepairCost();
     }
 }

@@ -3,14 +3,15 @@ package me.wolfyscript.utilities.api.inventory.custom_items.meta.options;
 import me.wolfyscript.utilities.api.inventory.custom_items.CustomItem;
 import me.wolfyscript.utilities.api.inventory.custom_items.meta.SimpleMetaOption;
 import me.wolfyscript.utilities.util.NamespacedKey;
-import me.wolfyscript.utilities.util.inventory.item_builder.ItemBuilder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class OptionMetaUnbreakable extends SimpleMetaOption {
 
     public static final Creator<OptionMetaUnbreakable> CREATOR = new Creator<OptionMetaUnbreakable>() {
         @Override
         public OptionMetaUnbreakable create(CustomItem customItem) {
-            return new OptionMetaUnbreakable(customItem);
+            return new OptionMetaUnbreakable();
         }
 
         @Override
@@ -19,15 +20,13 @@ public class OptionMetaUnbreakable extends SimpleMetaOption {
         }
     };
 
-    public OptionMetaUnbreakable(CustomItem customItem) {
-        super(customItem);
+    public OptionMetaUnbreakable() {
+        super();
     }
 
     @Override
-    public boolean check(CustomItem itemThis, ItemBuilder itemThat) {
-        if (!option.equals(SimpleSetting.IGNORE)) {
-            return itemThis.getItemMeta().isUnbreakable() == itemThat.getItemMeta().isUnbreakable();
-        }
-        return false;
+    public boolean check(CustomItem customItem, ItemMeta thatMeta, ItemStack thatItem) {
+        if (super.check(customItem, thatMeta, thatItem)) return true;
+        return customItem.getItemMeta().isUnbreakable() == thatMeta.isUnbreakable();
     }
 }

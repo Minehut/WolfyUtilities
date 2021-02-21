@@ -4,9 +4,10 @@ import com.google.common.collect.Multimap;
 import me.wolfyscript.utilities.api.inventory.custom_items.CustomItem;
 import me.wolfyscript.utilities.api.inventory.custom_items.meta.SimpleMetaOption;
 import me.wolfyscript.utilities.util.NamespacedKey;
-import me.wolfyscript.utilities.util.inventory.item_builder.ItemBuilder;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -16,7 +17,7 @@ public class OptionMetaAttributes extends SimpleMetaOption {
     public static Creator<OptionMetaAttributes> CREATOR = new Creator<OptionMetaAttributes>() {
         @Override
         public OptionMetaAttributes create(CustomItem customItem) {
-            return new OptionMetaAttributes(customItem);
+            return new OptionMetaAttributes();
         }
 
         @Override
@@ -25,8 +26,8 @@ public class OptionMetaAttributes extends SimpleMetaOption {
         }
     };
 
-    public OptionMetaAttributes(CustomItem customItem) {
-        super(customItem);
+    public OptionMetaAttributes() {
+        super();
     }
 
     private static boolean compareModifiers(Multimap<Attribute, AttributeModifier> first, Multimap<Attribute, AttributeModifier> second) {
@@ -53,16 +54,10 @@ public class OptionMetaAttributes extends SimpleMetaOption {
     }
 
     @Override
-    public boolean check(CustomItem itemThis, ItemBuilder itemThat) {
-        if (!option.equals(SimpleSetting.IGNORE)) {
-            if (itemThis.getItemMeta().hasAttributeModifiers()) {
-                if (!itemThat.getItemMeta().hasAttributeModifiers() || !compareModifiers(itemThis.getItemMeta().getAttributeModifiers(), itemThat.getItemMeta().getAttributeModifiers())) {
-                    return false;
-                }
-            } else if (itemThat.getItemMeta().hasAttributeModifiers()) {
-                return false;
-            }
-        }
-        return false;
+    public boolean check(CustomItem customItem, ItemMeta thatMeta, ItemStack itemThat) {
+        if (super.check(customItem, thatMeta, itemThat)) return true;
+        if (customItem.getItemMeta().hasAttributeModifiers()) {
+            return thatMeta.hasAttributeModifiers() && compareModifiers(customItem.getItemMeta().getAttributeModifiers(), thatMeta.getAttributeModifiers());
+        } else return !thatMeta.hasAttributeModifiers();
     }
 }

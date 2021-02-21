@@ -2,30 +2,34 @@ package me.wolfyscript.utilities.api.inventory.custom_items.meta;
 
 import me.wolfyscript.utilities.api.inventory.custom_items.CustomItem;
 import me.wolfyscript.utilities.util.NamespacedKey;
-import me.wolfyscript.utilities.util.inventory.item_builder.ItemBuilder;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 
-public class SettingsMetaBook {
+public class SettingsMetaBook extends SettingsMetaItem {
 
-    private MetaOption displayName;
-    private MetaOption locName;
-    private MetaOption lore;
-    private MetaOption customModelData;
-    private MetaOption enchantments;
-    private MetaOption repairCost;
-    private MetaOption attributes;
-    private MetaOption hideFlags;
-    private MetaOption unbreakable;
-    private MetaOption damage;
-    private MetaOption blockData;
-    private MetaOption customBukkitTags;
-    private MetaOption customDurability;
-    private Map<NamespacedKey, MetaOption> customOptions;
+    private final MetaOption title;
+    private final MetaOption author;
+    private final MetaOption pages;
+    private final MetaOption resolved;
+    private final MetaOption generation;
 
+    private Map<NamespacedKey, MetaOption> customBookOptions;
 
-    public boolean check(CustomItem thisItem, ItemBuilder thatItem) {
-        //TODO: WIP new Metadata check system.
+    public SettingsMetaBook(CustomItem customItem) {
+        super(customItem);
+        title = null;
+        author = null;
+        pages = null;
+        resolved = null;
+        generation = null;
+    }
+
+    @Override
+    public boolean check(ItemStack that) {
+        if (super.check(that)) {
+
+        }
         return false;
     }
 }

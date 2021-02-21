@@ -6,29 +6,29 @@ import me.wolfyscript.utilities.util.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class OptionMetaCustomModelData extends SimpleMetaOption {
+public class OptionMetaEnchants extends SimpleMetaOption {
 
-    public static final Creator<OptionMetaCustomModelData> CREATOR = new Creator<OptionMetaCustomModelData>() {
+    public static final Creator<OptionMetaEnchants> CREATOR = new Creator<OptionMetaEnchants>() {
         @Override
-        public OptionMetaCustomModelData create(CustomItem customItem) {
-            return new OptionMetaCustomModelData();
+        public OptionMetaEnchants create(CustomItem customItem) {
+            return new OptionMetaEnchants();
         }
 
         @Override
         public NamespacedKey getNamespacedKey() {
-            return NamespacedKey.wolfyutilties("custom_model_data");
+            return NamespacedKey.wolfyutilties("lore");
         }
     };
 
-    public OptionMetaCustomModelData() {
+    public OptionMetaEnchants() {
         super();
     }
 
     @Override
     public boolean check(CustomItem customItem, ItemMeta thatMeta, ItemStack thatItem) {
         if (super.check(customItem, thatMeta, thatItem)) return true;
-        if (customItem.getItemMeta().hasCustomModelData()) {
-            return thatMeta.hasCustomModelData() && customItem.getItemMeta().getCustomModelData() == thatMeta.getCustomModelData();
-        } else return !thatMeta.hasCustomModelData();
+        if (customItem.getItemMeta().hasEnchants()) {
+            return thatMeta.hasEnchants() && customItem.getItemMeta().getEnchants().equals(thatMeta.getEnchants());
+        } else return !thatMeta.hasEnchants();
     }
 }

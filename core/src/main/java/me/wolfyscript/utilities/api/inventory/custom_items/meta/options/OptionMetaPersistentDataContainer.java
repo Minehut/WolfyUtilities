@@ -3,14 +3,15 @@ package me.wolfyscript.utilities.api.inventory.custom_items.meta.options;
 import me.wolfyscript.utilities.api.inventory.custom_items.CustomItem;
 import me.wolfyscript.utilities.api.inventory.custom_items.meta.SimpleMetaOption;
 import me.wolfyscript.utilities.util.NamespacedKey;
-import me.wolfyscript.utilities.util.inventory.item_builder.ItemBuilder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class OptionMetaPersistentDataContainer extends SimpleMetaOption {
 
     public static final Creator<OptionMetaPersistentDataContainer> CREATOR = new Creator<OptionMetaPersistentDataContainer>() {
         @Override
         public OptionMetaPersistentDataContainer create(CustomItem customItem) {
-            return new OptionMetaPersistentDataContainer(customItem);
+            return new OptionMetaPersistentDataContainer();
         }
 
         @Override
@@ -19,15 +20,13 @@ public class OptionMetaPersistentDataContainer extends SimpleMetaOption {
         }
     };
 
-    public OptionMetaPersistentDataContainer(CustomItem customItem) {
-        super(customItem);
+    public OptionMetaPersistentDataContainer() {
+        super();
     }
 
     @Override
-    public boolean check(CustomItem itemThis, ItemBuilder itemThat) {
-        if (!option.equals(SimpleSetting.IGNORE)) {
-            return itemThis.getItemMeta().getPersistentDataContainer().equals(itemThat.getItemMeta().getPersistentDataContainer());
-        }
-        return false;
+    public boolean check(CustomItem customItem, ItemMeta thatMeta, ItemStack thatItem) {
+        if (super.check(customItem, thatMeta, thatItem)) return true;
+        return customItem.getItemMeta().getPersistentDataContainer().equals(thatMeta.getPersistentDataContainer());
     }
 }
