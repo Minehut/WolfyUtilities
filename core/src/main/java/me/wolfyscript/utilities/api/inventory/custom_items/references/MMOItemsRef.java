@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class MMOItemsRef extends APIReference {
 
@@ -29,6 +30,15 @@ public class MMOItemsRef extends APIReference {
     @Override
     public ItemStack getIdItem() {
         return getLinkedItem();
+    }
+
+    @Override
+    public boolean isValidItem(ItemStack itemStack) {
+        NBTItem nbtItem = NBTItem.get(itemStack);
+        if (nbtItem.hasType()) {
+            return Objects.equals(itemType, MMOItems.plugin.getTypes().get(nbtItem.getType())) && Objects.equals(itemName, nbtItem.getString("MMOITEMS_ITEM_ID"));
+        }
+        return false;
     }
 
     @Override

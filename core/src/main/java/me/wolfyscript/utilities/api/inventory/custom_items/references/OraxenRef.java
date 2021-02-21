@@ -28,6 +28,11 @@ public class OraxenRef extends APIReference {
     }
 
     @Override
+    public boolean isValidItem(ItemStack itemStack) {
+        return Objects.equals(itemID, OraxenItems.getIdByItem(itemStack));
+    }
+
+    @Override
     public ItemStack getIdItem() {
         return getLinkedItem();
     }
