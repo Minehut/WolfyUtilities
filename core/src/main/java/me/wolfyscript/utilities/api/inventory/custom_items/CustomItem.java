@@ -2,16 +2,14 @@ package me.wolfyscript.utilities.api.inventory.custom_items;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import me.wolfyscript.utilities.api.WolfyUtilities;
 import me.wolfyscript.utilities.api.inventory.custom_items.meta.LegacyMetaSettings;
+import me.wolfyscript.utilities.api.inventory.custom_items.meta.SettingsMetaItem;
 import me.wolfyscript.utilities.api.inventory.custom_items.references.APIReference;
 import me.wolfyscript.utilities.api.inventory.custom_items.references.VanillaRef;
 import me.wolfyscript.utilities.api.inventory.custom_items.references.WolfyUtilitiesRef;
@@ -24,7 +22,6 @@ import me.wolfyscript.utilities.util.inventory.item_builder.ItemBuilder;
 import me.wolfyscript.utilities.util.json.jackson.JacksonUtil;
 import me.wolfyscript.utilities.util.version.MinecraftVersions;
 import me.wolfyscript.utilities.util.version.ServerVersion;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -80,6 +77,7 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
      */
     private me.wolfyscript.utilities.util.NamespacedKey namespacedKey;
 
+    private final Material type;
     private final Material craftRemain;
     private boolean consumed;
     private APIReference replacement;
@@ -103,7 +101,7 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
      */
     private final APIReference apiReference;
     private ParticleContent particleContent;
-    private LegacyMetaSettings legacyMetaSettings;
+    private SettingsMetaItem metaSettings;
 
 
     public CustomItem(APIReference apiReference) {
@@ -113,7 +111,6 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
         this.namespacedKey = null;
         this.burnTime = 0;
         this.allowedBlocks = new ArrayList<>();
-        this.legacyMetaSettings = new LegacyMetaSettings();
         this.permission = "";
         this.rarityPercentage = 1.0d;
         for (CustomData.Provider<?> customData : Registry.CUSTOM_ITEM_DATA.values()) {
@@ -124,12 +121,13 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
         this.blockPlacement = false;
         this.blockVanillaEquip = false;
         this.blockVanillaRecipes = false;
-        this.advanced = true;
+        this.advanced = false;
 
         this.consumed = true;
         this.replacement = null;
         this.durabilityCost = 0;
         this.craftRemain = getCraftRemain();
+        this.type = getItemStack() != null ? getItemStack().getType() : Material.AIR;
     }
 
     /**
@@ -282,12 +280,12 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
         this.consumed = consumed;
     }
 
-    public LegacyMetaSettings getMetaSettings() {
-        return legacyMetaSettings;
+    public SettingsMetaItem getMetaSettings() {
+        return metaSettings;
     }
 
-    public void setMetaSettings(LegacyMetaSettings legacyMetaSettings) {
-        this.legacyMetaSettings = legacyMetaSettings;
+    public void setMetaSettings(SettingsMetaItem metaSettings) {
+        this.metaSettings = metaSettings;
     }
 
     public int getBurnTime() {
@@ -397,31 +395,19 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
      * @return true if the ItemStack is equal to this CustomItems ItemStack
      */
     public boolean isSimilar(ItemStack otherItem, boolean exactMeta) {
-        ItemStack currentItem = create();
-        if (otherItem == null) return false;
-        if (otherItem == currentItem) return true;
-        if (otherItem.getType().equals(currentItem.getType()) && otherItem.getAmount() >= currentItem.getAmount()) {
-            if (!isAdvanced() && hasNamespacedKey()) {
-                CustomItem otherCustomItem = CustomItem.getByItemStack(otherItem);
-                if (ItemUtils.isAirOrNull(otherCustomItem) || !otherCustomItem.hasNamespacedKey()) return false;
-                return getNamespacedKey().equals(otherCustomItem.getNamespacedKey());
+        if (otherItem != null && otherItem.getType().equals(type) && otherItem.getAmount() >= getAmount()) {
+            if (hasNamespacedKey()) {
+                CustomItem other = CustomItem.getByItemStack(otherItem);
+                if ((ItemUtils.isAirOrNull(other) || !other.hasNamespacedKey()) || !getNamespacedKey().equals(other.getNamespacedKey())) {
+                    return false;
+                }
+            } else if (!getApiReference().isValidItem(otherItem)) {
+                return false;
             }
-            if (!exactMeta && !currentItem.hasItemMeta()) return true;
-            ItemBuilder customItem = new ItemBuilder(currentItem);
-            ItemBuilder customItemOther = new ItemBuilder(otherItem.clone());
-            boolean meta = getMetaSettings().check(customItemOther, customItem);
-                /*
-                ItemMeta itemMeta = customItem.getItemMeta();
-                ItemMeta itemMetaOther = customItemOther.getItemMeta();
-                itemMeta.setVersion(2580);
-                itemMetaOther.setVersion(2580);
-
-                This can be used to bypass different versions of saved and current input item.
-                However I am not sure what could happen by forcing the version to change.
-                Best way to handle this issue is to re-save all the items and the load them again. That will update them including the version number.
-                CustomCrafting handles it with "/recipes save" where all items are re-saved!
-                */
-            return meta && Bukkit.getItemFactory().equals(customItem.getItemMeta(), customItemOther.getItemMeta());
+            if (isAdvanced() || getApiReference() instanceof VanillaRef) {
+                return !exactMeta || metaSettings.check(otherItem);
+            }
+            return true;
         }
         return false;
     }
@@ -447,7 +433,7 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
                 Objects.equals(equipmentSlots, that.equipmentSlots) &&
                 Objects.equals(apiReference, that.apiReference) &&
                 Objects.equals(particleContent, that.particleContent) &&
-                Objects.equals(legacyMetaSettings, that.legacyMetaSettings);
+                Objects.equals(metaSettings, that.metaSettings);
     }
 
     @Override
@@ -802,7 +788,7 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
                 ", advanced=" + advanced +
                 ", apiReference=" + apiReference +
                 ", particleContent=" + particleContent +
-                ", metaSettings=" + legacyMetaSettings +
+                ", metaSettings=" + metaSettings +
                 "} " + super.toString();
     }
 
@@ -827,7 +813,7 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
             gen.writeBooleanField("blockVanillaRecipes", customItem.isBlockVanillaRecipes());
             gen.writeNumberField("rarity_percentage", customItem.getRarityPercentage());
             gen.writeStringField("permission", customItem.getPermission());
-            gen.writeObjectField("meta", customItem.getMetaSettings());
+            gen.writeObjectField("meta_settings", customItem.getMetaSettings());
             gen.writeObjectFieldStart("fuel");
             {
                 gen.writeNumberField("burntime", customItem.getBurnTime());
@@ -885,17 +871,6 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
                 customItem.setRarityPercentage(node.path("rarity_percentage").asDouble(1.0));
                 customItem.setPermission(node.path("permission").asText());
 
-                if (node.has("meta")) {
-                    //Old version conversion
-                    LegacyMetaSettings.convert(customItem, node.path("meta"));
-                    //customItem.setMetaSettings(mapper.convertValue(node.path("meta"), LegacyMetaSettings.class));
-                } else {
-                    //Get new values.
-
-
-                }
-
-
                 JsonNode fuelNode = node.path("fuel");
                 {
                     customItem.setBurnTime(fuelNode.path("burntime").asInt());
@@ -919,6 +894,15 @@ public class CustomItem extends AbstractItemBuilder<CustomItem> implements Clone
                 customItem.setDurabilityCost(node.path("durability_cost").asInt());
                 node.path("equipment_slots").elements().forEachRemaining(n -> customItem.addEquipmentSlots(EquipmentSlot.valueOf(n.asText())));
                 customItem.setParticleContent(mapper.convertValue(node.path("particles"), ParticleContent.class));
+
+                if (node.has("meta")) {
+                    //Old version conversion
+                    customItem.setMetaSettings(LegacyMetaSettings.convert(customItem, node.path("meta")));
+                } else {
+                    //Get new values.
+                    InjectableValues injectableValues = new InjectableValues.Std().addValue(CustomItem.class, customItem);
+                    customItem.setMetaSettings(JacksonUtil.getObjectMapper().reader(injectableValues).forType(SettingsMetaItem.class).readValue(node.path("meta_settings")));
+                }
                 return customItem;
             }
             return new CustomItem(Material.AIR);
