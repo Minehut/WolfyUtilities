@@ -25,7 +25,7 @@ public class WolfyUtilities {
     private static final HashMap<String, Boolean> classes = new HashMap<>();
 
     public static boolean hasJavaXScripting() {
-        return hasClass("javax.script.ScriptEngine");
+        return false;
     }
 
     public static boolean hasSpigot() {

@@ -1,7 +1,6 @@
 package me.wolfyscript.utilities.util.scripting;
 
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 
 /**
  * @deprecated There is no need to use this util class!
@@ -11,7 +10,9 @@ import javax.script.ScriptEngineManager;
 @Deprecated
 public class ScriptUtil {
 
-    private ScriptUtil() {
+    private static final ScriptEngine engine = null;
+
+    public ScriptUtil() {
     }
 
     /**
@@ -20,6 +21,6 @@ public class ScriptUtil {
      */
     @Deprecated
     public static ScriptEngine getEngine() {
-        return new ScriptEngineManager().getEngineByName("Nashorn");
+        return null;
     }
 }
